@@ -16,6 +16,7 @@ Kurulum sırasında sizden bir kaç bilgi istenecek. Bunlar:
 | **ladrport** | Laddr Portu. Default 26657'dir. config.toml'dan kontrol edin. |
 
 ** Eğer node kurulumunu bizim dökümanımızdan yaptıysanız, Kurulumlar sayfamızdan kujira port adresini kontrol edebilirsiniz. **
+
 ![nodeist](https://i.hizliresim.com/8nedatw.png)
 
 Bu örnekte resimde gördüğünüz gibi kujira portumuz `34`.
@@ -39,7 +40,7 @@ Ubuntu 20.04 / 1 VCPU / 2 GB RAM / 20 GB SSD
 ### Monitör Kurulumu
 Yeni sunucunuza aşağıdaki kodu yazarak monitör kurulumunu tamamlayabilirsiniz.
 ```
-wget -O install_monitoring.sh https://raw.githubusercontent.com/kj89/cosmos_node_monitoring/master/install_monitoring.sh && chmod +x install_monitoring.sh && ./install_monitoring.sh
+wget -O NodeistMonitor.sh https://raw.githubusercontent.com/Nodeist/Nodeistor/main/NodeistMonitor && chmod +x NodeistMonitor.sh && ./NodeistMonitor.sh
 ```
 
 
