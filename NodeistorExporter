@@ -5,6 +5,11 @@ read -p "Bench Prefix değeri yazın. örneğin kujira için kujira: " BENCH_PRE
 read -p "address portunuzu yazın, default 9090dır. app.toml dan kontrol edin.: " ADRESPORT
 read -p "laddr portunuzu yazın, default 26657dir. config.toml dan kontrol edin.: " LADRPORT
 
+echo "export BOND_DENOM=${BOND_DENOM}" >> $HOME/.bash_profile
+echo "export BENCH_PREFIX=${BENCH_PREFIX}" >> $HOME/.bash_profile
+echo "export ADRESPORT=${ADRESPORT}" >> $HOME/.bash_profile
+echo "export LADRPORT=${LADRPORT}" >> $HOME/.bash_profile
+
 echo '================================================='
 echo -e "bond_denom: \e[1m\e[32m$BOND_DENOM\e[0m"
 echo -e "bench_prefix: \e[1m\e[32m$BENCH_PREFIX\e[0m"
