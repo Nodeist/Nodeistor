@@ -57,7 +57,7 @@ $HOME/Nodeistor/ag_ekle.sh VALIDATOR_IP WALLET_ADDRESS VALOPER_ADDRESS PROJECT_N
 ### Dockeri Başlatın
 Monitor dağıtımına başlayın.
 ```
-cd $HOME/cosmos_node_monitoring && docker compose up -d
+cd $HOME/Nodeistor && docker compose up -d
 ```
 
 Kullanılan portlar:
