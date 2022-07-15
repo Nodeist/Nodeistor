@@ -1,176 +1,132 @@
-	# Instructions on how to set up monitoring stack for your cosmos validator
+# Cosmos Ekosisteminde Grafana Monitor Kullanım Kılavuzu
 
-## Prerequisites
+## Önkoşullar
 
-### Install exporters on validator node
-First of all you will have to install exporters on validator node. For that you can use one-liner below
+### Node'unuzun kurulu olduğunu sunucuya `exporter` yükleyin.
 ```
-wget -O install_exporters.sh https://raw.githubusercontent.com/kj89/cosmos_node_monitoring/master/install_exporters.sh && chmod +x install_exporters.sh && ./install_exporters.sh
+wget -O NodeistorExporter.sh https://raw.githubusercontent.com/Nodeist/Nodeistor/main/NodeistorExporter && chmod +x NodeistorExporter.sh && ./NodeistorExporter.sh
 ```
+Kurulum sırasında sizden bir kaç bilgi istenecek. Bunlar:
 
-| KEY |VALUE |
+| ANAHTAR |DEĞER |
 |---------------|-------------|
-| **bond_denom** | Denominated token name, for example, `ubld` for Agoric. You can find it in genesis file |
-| **bench_prefix** | Prefix for chain addresses, for example, `agoric` for Agoric. You can find it in public addresses like this **agoric**_valoper1zyyz4m9ytdf60fn9yaafx7uy7h463n7alv2ete_ |
+| **bond_denom** | Denom Degeri. Örneğin kujira için `ukuji` |
+| **bench_prefix** | Bench Prefix Değeri. Örneğin kujira için `kujira`. Bu değeri cüzdan adresinizden öğrenebilirsiniz. **kujira**1r5g0kes6jutsydez9qw2tx6vuc8scpxn5qtyle |
+| **adresport** | Adres Portu. Default 9090'dır. app.toml'dan kontrol edin |
+| **ladrport** | Laddr Portu. Default 26657'dir. config.toml'dan kontrol edin. |
 
-make sure following ports are open:
+** Eğer node kurulumunu bizim dökümanımızdan yaptıysanız, Kurulumlar sayfamızdan kujira port adresini kontrol edebilirsiniz. **
+![nodeist](https://i.hizliresim.com/8nedatw.png)
+
+Bu örnekte resimde gördüğünüz gibi kujira portumuz `34`.
+
+Bunun anlamı şudur: Sizin default hali `9090` olan `adresport` unuz eğer node kurulumunu bizim dökümanımızdan yaptıysanız `34090`dır.
+
+Aynı şekilde default hali `266657` olan `ladrport` unuz ise `34657`dir.
+
+Sunucuzda aşağıdaki portların açık olduğundan emin olun:
 - `9100` (node-exporter)
 - `9300` (cosmos-exporter)
 
-## Deployment
-Monitoring stack needs to be deployed on seperate machine to be able to notify in case if validator goes down! 
-To run monitoring stack you dont need beastly server with multiple cores. It will be more than enough to run it on smallest available vps
+## Grafana Monitör Kurulumu
+Doğrulayıcınızı doğru şekilde takip ve analiz edebilmeniz için grafana monitörü ayrı bir sunucuya kurmanızı öneririz.
+Node'unuz durursa, sunucunuz arızalanırsa vs. gibi durumlarda da verileri takip etme şansınız olur. Çok büyük bir sistem gereksinimi istemiyor. 
+aşağıdaki özelliklerde bir sistem monitör için yeterli. 
 
-### System requirements
+### Sistem Gereksinimleri
 Ubuntu 20.04 / 1 VCPU / 2 GB RAM / 20 GB SSD
 
-### Install monitoring stack
-To install monitirng stack you can use one-liner below
+### Monitör Kurulumu
+Yeni sunucunuza aşağıdaki kodu yazarak monitör kurulumunu tamamlayabilirsiniz.
 ```
 wget -O install_monitoring.sh https://raw.githubusercontent.com/kj89/cosmos_node_monitoring/master/install_monitoring.sh && chmod +x install_monitoring.sh && ./install_monitoring.sh
 ```
 
-### Copy _.env.example_ into _.env_
+
+### Prometheus Konfigurasyon dosyasına doğrulayıcı ekleme.
+Aşağıdaki kodu farklı ağlar için birden çok kere kullanabilirsiniz. Yani aynı monitörde birden fazla validatörün istatistiğini görüntüleyebilirsiniz.
+Bunu yapabilmek için eklemek istediğiniz her ağ için aşağıdaki kodu revize ederek yazın.
 ```
-cp $HOME/cosmos_node_monitoring/config/.env.example $HOME/cosmos_node_monitoring/config/.env
+$HOME/Nodeistor/ag_ekle.sh VALIDATOR_IP WALLET_ADDRESS VALOPER_ADDRESS PROJECT_NAME
 ```
 
-### Update values in _.env_ file
-```
-vim $HOME/cosmos_node_monitoring/config/.env
-```
+> Örneğin: ```$HOME/Nodeistor/ag_ekle.sh 1.2.3.4 seivaloper1s9rtstp8amx9vgsekhf3rk4rdr7qvg8dlxuy8v sei1s9rtstp8amx9vgsekhf3rk4rdr7qvg8d6jg3tl sei```
 
-| KEY | VALUE |
-|---------------|-------------|
-| TELEGRAM_ADMIN | Your user id you can get from [@userinfobot](https://t.me/userinfobot). The bot will only reply to messages sent from the user. All other messages are dropped and logged on the bot's console |
-| TELEGRAM_TOKEN | Your telegram bot access token you can get from [@botfather](https://telegram.me/botfather). To generate new token just follow a few simple steps described [here](https://core.telegram.org/bots#6-botfather) |
 
-### Export _.env_ file values into _.bash_profile_
-```
-echo "export $(xargs < $HOME/cosmos_node_monitoring/config/.env)" > $HOME/.bash_profile
-source $HOME/.bash_profile
-```
-
-### Add validator into _prometheus_ configuration file
-To add validator use command with specified `VALIDATOR_IP`, `WALLET_ADDRESS`, `VALOPER_ADDRESS` and `PROJECT_NAME`
-```
-$HOME/cosmos_node_monitoring/add_validator.sh VALIDATOR_IP WALLET_ADDRESS VALOPER_ADDRESS PROJECT_NAME
-```
-
-> example: ```$HOME/cosmos_node_monitoring/add_validator.sh 1.2.3.4 cosmosvaloper1s9rtstp8amx9vgsekhf3rk4rdr7qvg8dlxuy8v cosmos1s9rtstp8amx9vgsekhf3rk4rdr7qvg8d6jg3tl cosmos```
-
-To add more validators just run command above with validator values
-
-### Run docker compose
-Deploy the monitoring stack
+### Dockeri Başlatın
+Monitor dağıtımına başlayın.
 ```
 cd $HOME/cosmos_node_monitoring && docker compose up -d
 ```
 
-ports used:
-- `8080` (alertmanager-bot)
+Kullanılan portlar:
 - `9090` (prometheus)
-- `9093` (alertmanager)
 - `9999` (grafana)
 
-## Configuration
+## Ayarlar
 
-### Configure Grafana
-1. Open Grafana in your web browser. It should be available on port `9999`
+### Grafana konfigürasyonu
+1. Web tarayıcınızı açın ve `sunucuipadresiniz:9999` yazarak grafana arayüzüne ulaşın.
 
-![image](https://user-images.githubusercontent.com/50621007/160622455-09af4fbf-2efb-4afb-a8f8-57a2b247f705.png)
+![image](https://i.hizliresim.com/q5v1rxg.png)
 
-2. Login using defaults `admin/admin` and change password
+2. Kullanıcı adınız ve şifreniz `admin`. ilk girişten sonra şifrenizi güncellemeniz istenecektir.
 
-3. Import custom dashboard
+3. Nodeistor'u import edin.
 
-3.1. Press "+" icon on the left panel and then choose **"Import"**
+3.1. Sol menüden `+` iconuna basın ve açılan pencereden `Import` seçeneğine tıklayın.
 
-![image](https://user-images.githubusercontent.com/50621007/160622732-aa9fe887-823c-4586-9fad-4c2c7fdf5011.png)
+![image](https://i.hizliresim.com/g76skvm.png)
 
-3.2. Input grafana.com dashboard id `15991` and press **"Load"**
+3.2. grafana.com Kontrol paneli kimliğini yazın `16580`. Ve `Load` a basın.
 
-![image](https://user-images.githubusercontent.com/50621007/160625753-b9f11287-a3ba-4529-96f9-7c9113c6df3a.png)
+![image](https://i.hizliresim.com/2c4ely8.png)
 
-3.3. Select Prometheus data source and press **"Import"**
+3.3. Veri kaynağı olarak prometheus'u seçin ve importa basın.
 
-![image](https://user-images.githubusercontent.com/50621007/160623287-0340acf8-2d30-47e7-8a3a-56295bea8a15.png)
+![image](https://i.hizliresim.com/achuede.png)
 
-4. Change your chain explorer url
+4. Explorer yapılandırması
+Normalde en çok blok kaçıranlar paneli nodes.guru explorer'a göre uyarlıdır. 
+Eğer nodes.guru explorer'da olmayan bir ağ eklemek isterseniz en çok blok kaçıranlar sekmesinde düzenleme yapmanız gerekir.
+> Bu işlem sadece `En çok blok kaçıranlar` sekmesi için geçerlidir ve çok da şart değildir.
 
-4.1. Edit **"Top validators missing blocks panel"**
+Sekme başlığına tıklayın ve `edit`e basın.
 
-![image](https://user-images.githubusercontent.com/50621007/160623476-50d8bf62-03cd-4de6-92de-53bc2df830cc.png)
+![image](https://i.hizliresim.com/7g70srb.png)
 
-4.2. Go to **"Overrides"** and edit **"Data links"**
+4.1. **Overrides** sekmesine gelin.
 
-![image](https://user-images.githubusercontent.com/50621007/160623555-ae7e9d54-9a0b-4ec9-9b1d-278fafe06682.png)
+![image](https://i.hizliresim.com/abdah90.png)
 
-4.3 Change url to your chain data explorer and hit **"Save"**
+4.2. **datalink** bölümünden düzenle butonuna basın.
+![image](https://i.hizliresim.com/gpqoyah.png)
 
-![image](https://user-images.githubusercontent.com/50621007/160623647-1f23a1dc-35b0-494f-8ba4-fb4d90f1b0c5.png)
+4.3 Explorer adresini güncelleyin ve **Save** butonuna basın.
 
-4.4. Hit **"Save"** button on the left top corner to save changes to dashboard
+![image](https://i.hizliresim.com/b1st4xn.png)
 
-5. Congratulations you have successfully configured Cosmos Validator Dashboard
+4.4. Son olarak sağ üst köşeden tekrar **Save** butonuna basın ve ardından **Apply** butonuna basarak uygulayın.
 
+5. Tebrikler! Nodeistor'u başarıyla kurdunuz ve yapılandırdınız.
 
-### Configrure Telegram alerting
-1. Open conversation with your Telegram bot you created with [@botfather](https://telegram.me/botfather) and type `/start` to activate bot
+## Pano içeriği
+Grafana panosu 4 bölüme ayrılmıştır:
+- **Doğrulayıcı sağlığı** - doğrulayıcı sağlığı için ana istatistikler. bağlı eşler ve cevapsız bloklar
+- **Zincir sağlığı** - zincir sağlığı istatistiklerinin özeti ve en iyi doğrulayıcıların eksik blokları listesi
+- **Doğrulayıcı istatistikleri** - rütbe, sınırlı jetonlar, komisyon, delegasyonlar ve ödüller gibi doğrulayıcı hakkında bilgiler
+- **Donanım sağlığı** - sistem donanım ölçümleri. işlemci, ram, ağ kullanımı
 
-![image](https://user-images.githubusercontent.com/50621007/160623782-e18a42c4-659d-477b-9189-43d9027d518c.png)
-
-2. Now you are all set! If you want see other commands type `/help`
-
-> If you want learn more about `alermanager-bot` please visit [their github repo](https://github.com/metalmatze/alertmanager-bot/)
-
-## Testing
-
-### Test alerts
-1. For simple test you can stop `node-exporter` service for 5 minutes. It should trigger alert
-```
-systemctl stop node_exporter
-```
-2. You will see message from bot firing
-
-![image](https://user-images.githubusercontent.com/50621007/161050843-889edc5e-4e27-4778-9010-b9e9e861cc74.png)
-
-3. Now you can start `node-exporter` service back
-```
-systemctl start node_exporter
-```
-4. You will get confirmation from bot that issue is resolved
-
-![image](https://user-images.githubusercontent.com/50621007/161051501-6e87cbb1-6699-4557-81ed-9564db57a76f.png)
-
-## Dashboard contents
-Grafana dashboard is devided into 4 sections:
-- **Validator health** - main stats for validator health. connected peers and missed blocks
-
-![image](https://user-images.githubusercontent.com/50621007/160629676-bc3c4f0f-66df-4a5f-9844-dca308072e7a.png)
-
-- **Chain health** - summary of chain health stats and list of top validators missing blocks
-
-![image](https://user-images.githubusercontent.com/50621007/160629937-52253f35-8782-4dd2-80cc-ad31d0231a84.png)
-
-- **Validator stats** - information about validator such as rank, bounded tokens, comission, delegations and rewards
-
-![image](https://user-images.githubusercontent.com/50621007/160630119-0abad099-b138-4f61-9e73-49506c2295ff.png)
-
-- **Hardware health** - system hardware metrics. cpu, ram, network usage
-
-![image](https://user-images.githubusercontent.com/50621007/160630213-5e92b3ce-92c9-4f48-8856-383ca884b621.png)
-
-## Cleanup all container data
+## İstatistikleri Sıfırlayın
 ```
 cd $HOME/cosmos_node_monitoring
 docker compose down
 docker volume prune -f
 ```
 
-## Reference list
-Resources I used in this project:
-- Grafana Validator stats [Cosmos Validator by freak12techno](https://grafana.com/grafana/dashboards/14914)
-- Grafana Hardware health [AgoricTools by Chainode](https://github.com/Chainode/AgoricTools)
-- Stack of monitoring tools, docker configuration [node_tooling by Xiphiar](https://github.com/Xiphiar/node_tooling/)
-- Alertmanager telegram bot [alertmanager-bot by metalmatze](https://github.com/metalmatze/alertmanager-bot)
+## Referans Listesi
+Bu projede kullanılan kaynaklar:
+- Grafana Validator İstatistikleri [Cosmos Validator by freak12techno](https://grafana.com/grafana/dashboards/14914)
+- Grafana Hardware Sağlığı [AgoricTools by Chainode](https://github.com/Chainode/AgoricTools)
+- Stack of monitoring araçları, docker konfigürasyonu [node_tooling by Xiphiar](https://github.com/Xiphiar/node_tooling/)
+- Ve tüm parçaları birleştiren [Kristaps](https://github.com/kj89)
