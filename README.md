@@ -88,7 +88,9 @@ Kullanılan portlar:
 ![image](https://i.hizliresim.com/achuede.png)
 
 4. Explorer yapılandırması
+
 Normalde en çok blok kaçıranlar paneli nodes.guru explorer'a göre uyarlıdır. 
+
 Eğer nodes.guru explorer'da olmayan bir ağ eklemek isterseniz en çok blok kaçıranlar sekmesinde düzenleme yapmanız gerekir.
 > Bu işlem sadece `En çok blok kaçıranlar` sekmesi için geçerlidir ve çok da şart değildir.
 
@@ -101,6 +103,7 @@ Sekme başlığına tıklayın ve `edit`e basın.
 ![image](https://i.hizliresim.com/abdah90.png)
 
 4.2. **datalink** bölümünden düzenle butonuna basın.
+
 ![image](https://i.hizliresim.com/gpqoyah.png)
 
 4.3 Explorer adresini güncelleyin ve **Save** butonuna basın.
