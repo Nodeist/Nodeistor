@@ -42,7 +42,7 @@ services:
       - ./grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
       - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
     ports:
-      - 1234:3000
+      - 9999:3000
     networks:
       - cosmos-monitoring
     restart: always
