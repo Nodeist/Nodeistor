@@ -10,8 +10,8 @@ During the installation, you will be asked for some information, including:
 
 | KEY           | VALUE                                                        |
 | ------------- | ------------------------------------------------------------ |
-| **bond_denom**| Denom Value. For example, `uosmo` for kujira                |
-| **bench_prefix**| Bench Prefix Value. For example, `osmo` for kujira. You can obtain this value from your wallet address. **osmo**1r5g0kes6jutsydez9qw2tx6vuc8scpxn5qtyle |
+| **bond_denom**| Denom Value. For example, `uosmo` for osmosis                |
+| **bench_prefix**| Bench Prefix Value. For example, `osmo` for osmosis. You can obtain this value from your wallet address. **osmo**1r5g0kes6jutsydez9qw2tx6vuc8scpxn5qtyle |
 | **adresport** | Address Port. Default is 9090. Check in app.toml           |
 | **ladrport**  | Laddr Port. Default is 26657. Check in config.toml.        |
 
